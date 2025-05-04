@@ -290,6 +290,34 @@ a {
   border-bottom: none;
 }
 
+
+
+
+/* Bseardh  */
+.search-form {
+  display: flex;
+  margin-bottom: 20px;
+}
+.search-form input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 4px;
+}
+
+.search-form button {
+  padding: 10px 15px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.fav-btn.active {
+  color: #ff6b6b;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .meal-info {

@@ -14,6 +14,12 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // for search functionality
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,6 +34,9 @@ const Home = () => {
     
     fetchData();
   }, []);
+
+
+
 
   const loadRandomMeal = async () => {
     try {
@@ -57,14 +66,40 @@ const Home = () => {
     }
   };
 
+
+
+  // Search functionality handlers, to be used in Search component,  
+  // makes an API call to fetch meals based on the search term
+
+
+const handleSearch = async (term) => {
+  setSearchTerm(term);  
+  if (!term.trim()) {
+    setSearchResults([]);
+    return;
+  };
+
+  try {
+    const response = await fetch(`${SEARCH_API}${term}`);
+
+    const data = await response.json();
+    setSearchResults(data.meals || []);
+  } catch (error) {
+    console.error("Error fetching search results:", error);
+    setSearchResults([]);
+  } 
+};
+
+
+
   const toggleFavorite = async (mealId) => {
     try {
       if (favoriteMealIds.includes(mealId)) {
-        // Remove from favorites
+        // Removes from favorites
         setFavoriteMeals(prev => prev.filter(meal => meal.idMeal !== mealId));
         setFavoriteMealIds(prev => prev.filter(id => id !== mealId));
       } else {
-        // Add to favorites
+        // Adds to favorites
         const meal = await getMealById(mealId);
         if (meal) {
           setFavoriteMeals(prev => [...prev, meal]);
@@ -87,16 +122,34 @@ const Home = () => {
         favoriteMeals={favoriteMeals} 
         onRemoveFavorite={toggleFavorite} 
       />
-      
+
+
+    
       <div className="meals" id="meals">
-        {randomMeal && (
+
+      {searchTerm ? (
+          // Displaying search results if search term exists
+          searchResults.map(meal => (
+            <MealCard 
+              key={meal.idMeal}
+              mealData={meal}
+              onFavoriteToggle={() => toggleFavorite(meal.idMeal)}
+              isFavorite={favoriteMealIds.includes(meal.idMeal)}
+            />
+          ))
+        ) : (
+          // Otherwise displaying  the random featured meal
+
+
+        randomMeal && (
           <MealCard 
             mealData={randomMeal}
             isRandom={true}
             onFavoriteToggle={() => toggleFavorite(randomMeal.idMeal)}
             isFavorite={favoriteMealIds.includes(randomMeal.idMeal)}
           />
-        )}
+        )
+      )}
       </div>
     </div>
   );
