@@ -72,23 +72,39 @@ const Home = () => {
   // makes an API call to fetch meals based on the search term
 
 
-const handleSearch = async (term) => {
-  setSearchTerm(term);  
-  if (!term.trim()) {
+  const handleSearch = async (term) => {
+
+  const searchQuery = term.trim();
+  setSearchTerm(searchQuery);  
+  if (!searchQuery) {
     setSearchResults([]);
     return;
-  };
+  }
 
   try {
-    const response = await fetch(`${SEARCH_API}${term}`);
+    setLoading(true);
+
+    const response = await fetch(`${SEARCH_API}${encodeURIComponent(searchQuery)}`);
+    if (!response.ok) {
+      throw new Error(`Search failed: ${response.status}`);
+    }
 
     const data = await response.json();
     setSearchResults(data.meals || []);
-  } catch (error) {
+  } 
+  
+  catch (error) {
+
     console.error("Error fetching search results:", error);
     setSearchResults([]);
+    setError("Failed to fetch search results. Please try again.");
   } 
-};
+  finally {
+    setLoading(false);
+  }
+  };
+
+
 
 
 
@@ -116,7 +132,7 @@ const handleSearch = async (term) => {
 
   return (
     <div className="store">
-      <Search />
+      <Search onSearch={handleSearch}/>
       
       <Favorites 
         favoriteMeals={favoriteMeals} 
@@ -153,6 +169,5 @@ const handleSearch = async (term) => {
       </div>
     </div>
   );
-};
-
+}
 export default Home;
